@@ -1,0 +1,8 @@
+
+# Only hardcore
+*
+
+# This looks fine
+!.gitignore
+!*.go
+!lib/
