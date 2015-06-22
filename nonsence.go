@@ -4,7 +4,7 @@ import (
     "fmt"
     "net"
     "os"
-	"./lib"
+	"./noncense"
 	"runtime"
 	"bufio"
 	"strings"
@@ -15,10 +15,11 @@ const (
 )
 
 func main() {
+
 	procs := runtime.NumCPU()
 	apiHost := "localhost"
 	apiPort := "5542"
-	mapSize := 3
+	mapSize := 1000000
 
 
 	fmt.Println("Starting server")
@@ -33,9 +34,9 @@ func main() {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
 	}
+	defer l.Close()
 
 	adder := noncense.NewNoncesAdder(uint32(mapSize))
-
 	servedConnections := 0;
 
 	for {
@@ -53,8 +54,6 @@ func main() {
 		// Handle connections in a new goroutine.
 		go handleRequest(conn, adder)
 	}
-
-	defer l.Close()
 }
 
 // Handles incoming requests.

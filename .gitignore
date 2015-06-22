@@ -5,4 +5,4 @@
 # This looks fine
 !.gitignore
 !*.go
-!lib/
+!noncense/

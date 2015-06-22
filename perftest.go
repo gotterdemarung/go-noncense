@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"runtime"
-	"./lib"
+	"./noncense"
 )
 
 func main() {
