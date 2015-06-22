@@ -4,5 +4,6 @@
 
 # This looks fine
 !.gitignore
+!*.md
 !*.go
 !noncense/

@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"bufio"
 	"strings"
+	"strconv"
 )
 
 const (
@@ -15,21 +16,36 @@ const (
 )
 
 func main() {
+	args  	:= os.Args[1:]
+	cpu 	:= runtime.NumCPU()
 
-	procs := runtime.NumCPU()
-	apiHost := "localhost"
-	apiPort := "5542"
-	mapSize := 1000000
+	if len(args) != 3 {
+		fmt.Println("app <hostname:port> <map size> <threads>\n");
+		os.Exit(1)
+	}
 
+	addr := args[0]
+
+	mapSize, err := strconv.Atoi(args[1])
+	if err != nil || mapSize < 2 {
+		fmt.Printf("Not valid map size, minimum 2\n\n")
+		os.Exit(2)
+	}
+	procs, err := strconv.Atoi(args[2])
+	if err != nil || mapSize < 1 {
+		fmt.Printf("Not valid threads count\n\n")
+		os.Exit(2)
+	}
 
 	fmt.Println("Starting server")
+	fmt.Printf("Number of CPU:       %v\n", cpu)
 	fmt.Printf("Number of processes: %v\n", procs)
 	fmt.Printf("Amount of NONCE-s:   %v\n", mapSize)
-	fmt.Printf("HTTP address:        %v:%v\n\n", apiHost, apiPort)
+	fmt.Printf("HTTP address:        %v\n\n", addr)
 
 	runtime.GOMAXPROCS(procs)
 
-	l, err := net.Listen(CONN_TYPE, apiHost + ":" + apiPort);
+	l, err := net.Listen(CONN_TYPE, addr);
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
@@ -74,6 +90,5 @@ func handleRequest(conn net.Conn, adder *noncense.NonceAdder) {
 			conn.Write([]byte("deny"))
 		}
 	}
-	// Close the connection when you're done with it.
 	conn.Close()
 }

@@ -1,43 +1,23 @@
 package noncense
 
 import (
-	"hash/crc32"
 	"errors"
 )
 
-type HString struct {
-	Value string
-	HashCode uint32
-}
-
-func NewHString(value string) HString {
-
-	h := crc32.NewIEEE()
-	h.Write([]byte(value))
-	return HString{Value: value, HashCode: h.Sum32()}
-}
-
-func (s *HString) trim(mod uint32) uint32 {
-	return s.HashCode % mod;
-}
-
+// Structure of hashmap item
 type mapNode struct {
 	prev *mapNode
 	next *mapNode
 	value *HString
 }
 
+// Structure of ring linked list item
 type listNode struct {
 	next *listNode
 	mapItem *mapNode
 }
 
-
-
-
-// -------------------------
-
-
+// Structure for nonces holder (hashmap + linked list)
 type NoncesHolder struct {
 	count uint32
 	served uint32
@@ -51,6 +31,7 @@ type NoncesHolder struct {
 	last *listNode
 }
 
+// Constructor
 func NewNoncesHolder(sizeMap uint32, sizeList uint32) *NoncesHolder {
 	return &NoncesHolder{
 		count: 0,
@@ -61,7 +42,8 @@ func NewNoncesHolder(sizeMap uint32, sizeList uint32) *NoncesHolder {
 	}
 }
 
-func (h *NoncesHolder) GetLoadFactor() uint32 {
+// Returns current max load
+func (h *NoncesHolder) GetLoad() uint32 {
 
 	if h.count == 0 {
 		return 0;
@@ -81,6 +63,12 @@ func (h *NoncesHolder) GetLoadFactor() uint32 {
 	return max
 }
 
+// Returns count of served NONCEs
+func (h *NoncesHolder) GetServedCount() uint32 {
+	return h.served;
+}
+
+// Adds new NONCE
 func (h *NoncesHolder) Add(value HString) error {
 
 	if h.Has(value) {
@@ -136,7 +124,7 @@ func (h *NoncesHolder) Add(value HString) error {
 				// Entry is first
 				t.next.prev = nil
 				h.hashMap[j] = t.next
- 			} else {
+			} else {
 				// Entry is the only one
 				h.hashMap[j] = nil
 			}
@@ -149,6 +137,7 @@ func (h *NoncesHolder) Add(value HString) error {
 	return nil
 }
 
+// Returns true if map contains provided NONCE
 func (h *NoncesHolder) Has(value HString) bool {
 	i := value.trim(h.sizeMap)
 
@@ -165,56 +154,4 @@ func (h *NoncesHolder) Has(value HString) bool {
 	}
 
 	return false
-}
-
-
-
-
-
-// -------------------------
-
-
-
-type NonceAdder struct {
-	holder *NoncesHolder
-	in chan chanNode
-}
-
-type chanNode struct {
-	value HString
-	out chan bool
-}
-
-func (a *NonceAdder) accept() {
-	for {
-		req := <- a.in
-		req.out <- a.holder.Add(req.value) == nil
-	}
-}
-
-func NewNoncesAdder(capacity uint32) *NonceAdder {
-
-	// Constructing
-	a := NonceAdder{
-		holder: NewNoncesHolder(capacity / 2, capacity),
-	}
-
-	// Making incoming queue
-	a.in = make(chan chanNode)
-
-	// Starting goroutine
-	go a.accept()
-
-	return &a;
-}
-
-func (a *NonceAdder) Add(value string) <- chan bool {
-	out := make(chan bool)
-
-	a.in <- chanNode{
-		value: NewHString(value),
-		out: out,
-	}
-
-	return out
 }
