@@ -6,7 +6,7 @@ import (
 	"runtime"
 )
 
-const count = 10
+const count = 10000
 
 func BenchmarkNoncesAdder_Add(b *testing.B) {
 	box := NewNoncesAdder(count)
