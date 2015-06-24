@@ -4,7 +4,7 @@ import (
     "fmt"
     "net"
     "os"
-	"./noncense"
+	"./go-noncense"
 	"runtime"
 	"bufio"
 	"strings"
