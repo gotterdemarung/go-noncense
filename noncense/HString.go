@@ -6,7 +6,7 @@ import (
 
 // Simple string with hash code
 type HString struct {
-	Value string
+	Value    string
 	HashCode uint32
 }
 
@@ -21,5 +21,5 @@ func NewHString(value string) HString {
 // Returns trimmed to provided size hashcode
 // Used to calculate position inside hashmap
 func (s *HString) trim(mod uint32) uint32 {
-	return s.HashCode % mod;
+	return s.HashCode % mod
 }

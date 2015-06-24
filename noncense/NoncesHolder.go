@@ -6,39 +6,39 @@ import (
 
 // Structure of hashmap item
 type mapNode struct {
-	prev *mapNode
-	next *mapNode
+	prev  *mapNode
+	next  *mapNode
 	value *HString
 }
 
 // Structure of ring linked list item
 type listNode struct {
-	next *listNode
+	next    *listNode
 	mapItem *mapNode
 }
 
 // Structure for nonces holder (hashmap + linked list)
 type NoncesHolder struct {
-	count uint32
-	served uint32
-	sizeMap uint32
+	count    uint32
+	served   uint32
+	sizeMap  uint32
 	sizeList uint32
 
 	hashMap []*mapNode
-	load []uint32
+	load    []uint32
 
 	first *listNode
-	last *listNode
+	last  *listNode
 }
 
 // Constructor
 func NewNoncesHolder(sizeMap uint32, sizeList uint32) *NoncesHolder {
 	return &NoncesHolder{
-		count: 0,
+		count:    0,
 		sizeList: sizeList,
-		sizeMap: sizeMap,
-		hashMap: make([]*mapNode, sizeMap),
-		load: make([]uint32, sizeMap),
+		sizeMap:  sizeMap,
+		hashMap:  make([]*mapNode, sizeMap),
+		load:     make([]uint32, sizeMap),
 	}
 }
 
@@ -46,9 +46,9 @@ func NewNoncesHolder(sizeMap uint32, sizeList uint32) *NoncesHolder {
 func (h *NoncesHolder) GetLoad() uint32 {
 
 	if h.count == 0 {
-		return 0;
+		return 0
 	} else if h.count == 1 {
-		return 1;
+		return 1
 	}
 
 	// Calculating max load
@@ -65,7 +65,7 @@ func (h *NoncesHolder) GetLoad() uint32 {
 
 // Returns count of served NONCEs
 func (h *NoncesHolder) GetServedCount() uint32 {
-	return h.served;
+	return h.served
 }
 
 // Adds new NONCE
@@ -81,7 +81,7 @@ func (h *NoncesHolder) Add(value HString) error {
 	// Placing map node into hashmap
 	i := value.trim(h.sizeMap)
 	h.load[i]++
-	if (h.hashMap[i] == nil) {
+	if h.hashMap[i] == nil {
 		h.hashMap[i] = &mn
 	} else {
 		mn.next = h.hashMap[i]
@@ -141,9 +141,9 @@ func (h *NoncesHolder) Add(value HString) error {
 func (h *NoncesHolder) Has(value HString) bool {
 	i := value.trim(h.sizeMap)
 
-	var mn *mapNode;
+	var mn *mapNode
 
-	mn = h.hashMap[i];
+	mn = h.hashMap[i]
 
 	for mn != nil {
 		if mn.value.HashCode == value.HashCode && mn.value.Value == value.Value {

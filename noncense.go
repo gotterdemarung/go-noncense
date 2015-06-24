@@ -1,26 +1,26 @@
 package main
 
 import (
-    "fmt"
-    "net"
-    "os"
 	"./noncense"
-	"runtime"
 	"bufio"
-	"strings"
+	"fmt"
+	"net"
+	"os"
+	"runtime"
 	"strconv"
+	"strings"
 )
 
 const (
-	CONN_TYPE = "tcp"
+	ConnectionType = "tcp"
 )
 
 func main() {
-	args  	:= os.Args[1:]
-	cpu 	:= runtime.NumCPU()
+	args := os.Args[1:]
+	cpu := runtime.NumCPU()
 
 	if len(args) != 3 {
-		fmt.Println("app <hostname:port> <map size> <threads>\n");
+		fmt.Println("app <hostname:port> <map size> <threads>")
 		os.Exit(1)
 	}
 
@@ -45,7 +45,7 @@ func main() {
 
 	runtime.GOMAXPROCS(procs)
 
-	l, err := net.Listen(CONN_TYPE, addr);
+	l, err := net.Listen(ConnectionType, addr)
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
@@ -53,7 +53,7 @@ func main() {
 	defer l.Close()
 
 	adder := noncense.NewNoncesAdder(uint32(mapSize))
-	servedConnections := 0;
+	servedConnections := 0
 
 	for {
 		// Listen for an incoming connection.
@@ -63,7 +63,7 @@ func main() {
 			fmt.Println("Error accepting: ", err.Error())
 			os.Exit(2)
 		}
-		if servedConnections % 10000 == 0 {
+		if (servedConnections % 10000) == 0 {
 			fmt.Printf("Served %v\n", servedConnections)
 		}
 

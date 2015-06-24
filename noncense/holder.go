@@ -8,16 +8,16 @@ import (
 type Holder struct {
 	sync.Mutex
 
-	served uint
+	served      uint
 	currentSize uint
-	maxSize uint
-	last *string
-	current *string
-	data map[string]*string
+	maxSize     uint
+	last        *string
+	current     *string
+	data        map[string]*string
 }
 
 func NewHolder(size uint) (*Holder, error) {
-	if (size == 0) {
+	if size == 0 {
 		return nil, errors.New("Holder size must be more than 0")
 	}
 
@@ -44,7 +44,7 @@ func (holder *Holder) Add(value string) error {
 
 	holder.current = &copyValue
 
-	if (holder.currentSize > holder.maxSize) {
+	if holder.currentSize > holder.maxSize {
 		holder.pop()
 	}
 

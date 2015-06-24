@@ -1,22 +1,22 @@
 package noncense
 
 type nativeNode struct {
-	next *nativeNode
-	prev *nativeNode
+	next  *nativeNode
+	prev  *nativeNode
 	value string
 }
 
 type eventNode struct {
 	value string
-	out chan bool
+	out   chan bool
 }
 
 type NoncesAdderNative struct {
 	values map[string]*nativeNode
-	first *nativeNode
-	last *nativeNode
+	first  *nativeNode
+	last   *nativeNode
 	events chan eventNode
-	count int
+	count  int
 }
 
 func NewNoncesAdderNative(capacity int) *NoncesAdderNative {
@@ -30,24 +30,24 @@ func NewNoncesAdderNative(capacity int) *NoncesAdderNative {
 
 func (a *NoncesAdderNative) accept() {
 	for {
-		req := <- a.events
+		req := <-a.events
 		req.out <- a.AddSync(req.value)
 	}
 }
 
 func (a *NoncesAdderNative) Has(value string) bool {
-	return a.values[value] != nil;
+	return a.values[value] != nil
 }
 
 func (a *NoncesAdderNative) AddSync(value string) bool {
-	if (a.Has(value)) {
+	if a.Has(value) {
 		return false
 	}
 
 	nn := nativeNode{value: value}
-	a.values[value] = &nn;
+	a.values[value] = &nn
 
-	if (a.first == nil) {
+	if a.first == nil {
 		a.first = &nn
 		a.last = &nn
 	} else {
@@ -57,32 +57,33 @@ func (a *NoncesAdderNative) AddSync(value string) bool {
 	}
 
 	if len(a.values) > a.count {
-		a.Pop()
+		a.pop()
 	}
 
 	return true
 }
 
-func (a *NoncesAdderNative) Pop() *nativeNode {
-	if (a.first == nil) {
+func (a *NoncesAdderNative) pop() *nativeNode {
+	if a.first == nil {
 		return nil
-	} else if (a.first == a.last) {
+	} else if a.first == a.last {
 		node := a.first
 		delete(a.values, node.value)
 		a.first = nil
 		a.last = nil
+
 		return node
 	} else {
 		node := a.first
 		delete(a.values, node.value)
 		a.first = a.first.next
 		a.first.prev = nil
+
 		return node
 	}
 }
 
-func (a *NoncesAdderNative) Add(value string)  <- chan bool {
-
+func (a *NoncesAdderNative) Add(value string) <-chan bool {
 	out := make(chan bool)
 	a.events <- eventNode{value: value, out: out}
 

@@ -1,9 +1,9 @@
 package noncense
 
 import (
-	"testing"
-	"strconv"
 	"runtime"
+	"strconv"
+	"testing"
 )
 
 const count = 10000
@@ -15,7 +15,7 @@ func BenchmarkNoncesAdder_Add(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_ = <- box.Add(strconv.Itoa(i))
+		_ = <-box.Add(strconv.Itoa(i))
 	}
 }
 
@@ -27,7 +27,7 @@ func BenchmarkNoncesAdder_Add_Goroutine(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		go func(x int) {
-			_ = <- box.Add(strconv.Itoa(i))
+			_ = <-box.Add(strconv.Itoa(i))
 		}(i)
 	}
 }
@@ -44,7 +44,7 @@ func BenchmarkNoncesAdderNative_Add(b *testing.B) {
 }
 
 func BenchmarkNoncesHolder_Add(b *testing.B) {
-	box := NewNoncesHolder(uint32(count / 2), uint32(count))
+	box := NewNoncesHolder(uint32(count/2), uint32(count))
 	runtime.GC()
 
 	b.ResetTimer()
