@@ -5,7 +5,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"./go-noncense"
+	"./noncense"
 )
 
 func main() {
