@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./noncense"
+	"github.com/gotterdemarung/go-noncense"
 	"bufio"
 	"fmt"
 	"net"
