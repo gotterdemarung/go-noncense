@@ -17,7 +17,7 @@ const (
 
 func main() {
 	args := os.Args[1:]
-	cpu := runtime2.NumCPU()
+	cpu := runtime.NumCPU()
 
 	if len(args) != 3 {
 		fmt.Println("app <hostname:port> <map size> <threads>")
