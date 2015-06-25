@@ -19,30 +19,6 @@ func BenchmarkNoncesAdder_Add(b *testing.B) {
 	}
 }
 
-func BenchmarkNoncesAdder_Add_Goroutine(b *testing.B) {
-	box := NewNoncesAdder(count)
-	runtime.GC()
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		go func(x int) {
-			_ = <-box.Add(strconv.Itoa(i))
-		}(i)
-	}
-}
-
-func BenchmarkNoncesAdderNative_Add(b *testing.B) {
-	box := NewNoncesAdderNative(count)
-	runtime.GC()
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		box.AddSync(strconv.Itoa(i))
-	}
-}
-
 func BenchmarkNoncesHolder_Add(b *testing.B) {
 	box := NewNoncesHolder(uint32(count/2), uint32(count))
 	runtime.GC()
