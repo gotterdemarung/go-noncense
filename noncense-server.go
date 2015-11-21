@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/gotterdemarung/go-noncense/noncense"
 	"bufio"
 	"fmt"
+	"github.com/gotterdemarung/go-noncense/noncense"
 	"net"
 	"os"
 	"runtime"
