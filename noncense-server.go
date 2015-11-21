@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/gotterdemarung/cfmt"
 	"github.com/gotterdemarung/go-noncense/noncense"
 	"net"
 	"os"
@@ -18,37 +18,36 @@ const (
 func main() {
 	args := os.Args[1:]
 	cpu := runtime.NumCPU()
+	cfmt.Println()
+	cfmt.Println(cfmt.FHeader("NONCEs holder"))
 
 	if len(args) != 3 {
-		fmt.Println("app <hostname:port> <map size> <threads>")
-		os.Exit(1)
+		help(nil, "")
 	}
 
 	addr := args[0]
 
 	mapSize, err := strconv.Atoi(args[1])
 	if err != nil || mapSize < 2 {
-		fmt.Printf("Not valid map size, minimum 2\n\n")
-		os.Exit(2)
+		help(err, "Not valid map size, minimum 2")
 	}
 	procs, err := strconv.Atoi(args[2])
 	if err != nil || mapSize < 1 {
-		fmt.Printf("Not valid threads count\n\n")
-		os.Exit(2)
+		help(err, "Not valid threads count")
 	}
 
-	fmt.Println("Starting server")
-	fmt.Printf("Number of CPU:       %v\n", cpu)
-	fmt.Printf("Number of processes: %v\n", procs)
-	fmt.Printf("Amount of NONCE-s:   %v\n", mapSize)
-	fmt.Printf("HTTP address:        %v\n\n", addr)
+	table := cfmt.TableBuffer2{}
+	table.Add("Number of CPU", cpu)
+	table.Add("Number of threads", procs)
+	table.Add("Amount of NONCE", mapSize)
+	table.Add("HTTP address", addr)
+	cfmt.Println(table)
 
 	runtime.GOMAXPROCS(procs)
 
 	l, err := net.Listen(ConnectionType, addr)
 	if err != nil {
-		fmt.Println("Error listening:", err.Error())
-		os.Exit(1)
+		help(err, "Error listening")
 	}
 	defer l.Close()
 
@@ -60,11 +59,14 @@ func main() {
 		conn, err := l.Accept()
 		servedConnections++
 		if err != nil {
-			fmt.Println("Error accepting: ", err.Error())
-			os.Exit(2)
+			help(err, "Error accepting")
 		}
 		if (servedConnections % 10000) == 0 {
-			fmt.Printf("Served %v\n", servedConnections)
+			cfmt.Println(
+				cfmt.FString("Served"),
+				" ",
+				cfmt.FInt(servedConnections),
+			)
 		}
 
 		// Handle connections in a new goroutine.
@@ -72,12 +74,45 @@ func main() {
 	}
 }
 
+// Prints help message
+func help(err error, errDescripion string) {
+	cfmt.Println(
+		cfmt.FString("app"),
+		" ",
+		"<hostname:port>",
+		" ",
+		"<map size>",
+		" ",
+		"<threads>",
+	)
+
+	if err == nil && errDescripion == "" {
+		cfmt.Println()
+		cfmt.Println()
+		cfmt.Println(cfmt.FHeader("Usage example"))
+		cfmt.Println("./noncense-server localhost:8888 1000000 4")
+		cfmt.Println("Runs server on local port 8888. Holds one million of NONCEs")
+		cfmt.Println("and processes all incoming requests in 4 threads")
+		cfmt.Println()
+	}
+
+	if errDescripion != "" {
+		cfmt.Println(cfmt.FError(errDescripion))
+	}
+	if err != nil {
+		cfmt.Println(cfmt.FError(err))
+	}
+
+	os.Exit(1)
+}
+
 // Handles incoming requests.
 func handleRequest(conn net.Conn, adder *noncense.NonceAdder) {
 	message, err := bufio.NewReader(conn).ReadString('\n')
 
 	if err != nil {
-		fmt.Println("Error reading:", err.Error())
+		cfmt.Println(cfmt.FError("Error reading"))
+		cfmt.Println(cfmt.FError(err))
 		conn.Write([]byte("0"))
 	} else {
 		message = strings.TrimSpace(message)
